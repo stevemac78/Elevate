@@ -1,1 +1,58 @@
 <div id="usage-history"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// Obtain access token
+const clientId = '<ClientId>';
+const clientSecret = '<ClientSecret>';
+const scope = 'api.service.analytics.main';
+const getTokenUrl = 'https://login.serverdata.net/user/connect/token';
+const tokenRequestBody = `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}&scope=${scope}`;
+
+let accessToken = '';
+
+fetch(getTokenUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: tokenRequestBody
+})
+  .then(response => response.json())
+  .then(data => {
+    accessToken = data.access_token;
+
+    // Retrieve usage history for all calls
+    const dateFrom = '2022-01-01T00:00:00.000Z';
+    const dateTo = '2022-03-01T00:00:00.000Z';
+    const usageHistoryUrl = `https://api.elevate.services/analytics/usageHistory/calls?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+
+    fetch(usageHistoryUrl, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Display data on page
+        const table = document.createElement('table');
+        const headerRow = table.insertRow();
+        headerRow.insertCell().textContent = 'Direction';
+        headerRow.insertCell().textContent = 'Duration';
+        headerRow.insertCell().textContent = 'From';
+        headerRow.insertCell().textContent = 'To';
+
+        data.calls.forEach(call => {
+          const row = table.insertRow();
+          row.insertCell().textContent = call.direction;
+          row.insertCell().textContent = call.duration;
+          row.insertCell().textContent = `${call.from.name} (${call.from.number})`;
+          row.insertCell().textContent = `${call.to.name} (${call.to.number})`;
+        });
+
+        document.body.appendChild(table);
+      })
+      .catch(error => console.error(error));
+  })
+  .catch(error => console.error(error));
+
+</script>
