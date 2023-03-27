@@ -2,8 +2,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 // Obtain access token
-const clientId = '<ClientId>';
-const clientSecret = '<ClientSecret>';
+const clientId = 'Pnko1YQHPkSdU91pYskeug';
+const clientSecret = 'uVD7yVQeboWE1Zm3ZCiAT44DGLMKsQq8Cc01a8zWrQ0';
 const scope = 'api.service.analytics.main';
 const getTokenUrl = 'https://login.serverdata.net/user/connect/token';
 const tokenRequestBody = `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}&scope=${scope}`;
@@ -22,8 +22,8 @@ fetch(getTokenUrl, {
     accessToken = data.access_token;
 
     // Retrieve usage history for all calls
-    const dateFrom = '2022-01-01T00:00:00.000Z';
-    const dateTo = '2022-03-01T00:00:00.000Z';
+    const dateFrom = '2023-01-01T00:00:00.000Z';
+    const dateTo = '2023-12-30T00:00:00.000Z';
     const usageHistoryUrl = `https://api.elevate.services/analytics/usageHistory/calls?dateFrom=${dateFrom}&dateTo=${dateTo}`;
 
     fetch(usageHistoryUrl, {
