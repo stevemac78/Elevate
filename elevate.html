@@ -37,22 +37,42 @@ fetch(getTokenUrl, {
        console.log(data); // Check if data is being returned
     // Code to display data
         // Display data on page
-        const table = document.createElement('table');
-        const headerRow = table.insertRow();
-        headerRow.insertCell().textContent = 'Direction';
-        headerRow.insertCell().textContent = 'Duration';
-        headerRow.insertCell().textContent = 'From';
-        headerRow.insertCell().textContent = 'To';
+const table = document.createElement('table');
+const thead = document.createElement('thead');
+const tbody = document.createElement('tbody');
+const headers = ['From', 'To', 'Start', 'Duration', 'Direction'];
 
-        data.calls.forEach(call => {
-          const row = table.insertRow();
-          row.insertCell().textContent = call.direction;
-          row.insertCell().textContent = call.duration;
-          row.insertCell().textContent = `${call.from.name} (${call.from.number})`;
-          row.insertCell().textContent = `${call.to.name} (${call.to.number})`;
-        });
+// Add table headers
+const headerRow = document.createElement('tr');
+headers.forEach(header => {
+  const th = document.createElement('th');
+  th.textContent = header;
+  headerRow.appendChild(th);
+});
+thead.appendChild(headerRow);
+table.appendChild(thead);
 
-        document.body.appendChild(table);
+// Add table rows
+data.calls.forEach(call => {
+  const row = document.createElement('tr');
+  const from = `${call.from.name} (${call.from.number})`;
+  const to = `${call.to.name} (${call.to.number})`;
+  const start = new Date(call.start).toLocaleString();
+  const duration = `${call.duration} sec`;
+  const direction = call.direction.charAt(0).toUpperCase() + call.direction.slice(1);
+  const cells = [from, to, start, duration, direction];
+  cells.forEach(cell => {
+    const td = document.createElement('td');
+    td.textContent = cell;
+    row.appendChild(td);
+  });
+  tbody.appendChild(row);
+});
+table.appendChild(tbody);
+
+// Add table to page
+document.body.appendChild(table);
+
       })
       .catch(error => console.error(error));
   })
