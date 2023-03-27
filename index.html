@@ -33,6 +33,8 @@ fetch(getTokenUrl, {
     })
       .then(response => response.json())
       .then(data => {
+       console.log(data); // Check if data is being returned
+    // Code to display data
         // Display data on page
         const table = document.createElement('table');
         const headerRow = table.insertRow();
