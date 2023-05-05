@@ -4,7 +4,17 @@
 	<title>POST to API Example</title>
 </head>
 <body>
-	<form id="myForm">
+	<h1>OAuth2.0 Authorization</h1>
+	<form id="authForm">
+		<label for="clientID">Client ID:</label>
+		<input type="text" id="clientID" name="clientID"><br><br>
+		<label for="clientSecret">Client Secret:</label>
+		<input type="text" id="clientSecret" name="clientSecret"><br><br>
+		<input type="submit" value="Authenticate">
+	</form>
+
+	<h1>POST to API Example</h1>
+	<form id="postForm" style="display: none;">
 		<label for="accountname">Account Name:</label>
 		<input type="text" id="accountname" name="accountname"><br><br>
 		<label for="login">Login:</label>
@@ -34,30 +44,90 @@
 		<input type="submit" value="Submit">
 	</form>
 
-	<script>
-		document.getElementById("myForm").addEventListener("submit", function(event) {
+		<script>
+		document.getElementById("authForm").addEventListener("submit", function(event) {
 			event.preventDefault();
 			var formData = new FormData(event.target);
-			var object = {};
-			formData.forEach(function(value, key){
-			    object[key] = value;
-			});
-			var json = JSON.stringify(object);
+			var clientID = formData.get("clientID");
+			var clientSecret = formData.get("clientSecret");
 
-			fetch('https://example.com/api', {
-			  method: 'POST',
-			  headers: {
-			    'Content-Type': 'application/json'
-			  },
-			  body: json
+			fetch('https://cp.serverdata.net/webservices/auth/v1/token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientID,
+					client_secret: clientSecret
+				})
 			})
-			.then(response => response.json())
-			.then(data => {
-			  console.log('Success:', data);
-			})
-			.catch((error) => {
-			  console.error('Error:', error);
-			});
+				.then(response => response.json())
+				.then(data => {
+					if (data.access_token) {
+						document.getElementById("postForm").style.display = "block";
+						document.getElementById("postForm").addEventListener("submit", function(event) {
+							event.preventDefault();
+							var formData = new FormData(event.target);
+							var token = data.access_token;
+							var payload = {
+								"programs": [ "account" ],
+								"general": {
+									"accountname": formData.get("accountname"),
+									"login": formData.get("login"),
+									"parentPartnerID": formData.get("parentPartnerID"),
+									"name": formData.get("name"),
+									"email": formData.get("email"),
+									"owner": {
+										"contactID": formData.get("contactID")
+									}
+								},
+								"company": {
+									"name": formData.get("companyName"),
+									"phone": formData.get("phone"),
+									"address": {
+										"country": formData.get("country"),
+										"city": formData.get("city"),
+										"addressLine1": formData.get("addressLine1"),
+										"zip": formData.get("zip")
+									}
+								},
+								"payment": {
+									"type": formData.get("paymentType"),
+									"name": formData.get("companyName"),
+									"phone": formData.get("phone"),
+									"address": {
+										"country": formData.get("country"),
+										"city": formData.get("city"),
+										"addressLine1": formData.get("addressLine1"),
+										"zip": formData.get("zip")
+									}
+								},
+								"planName": "Elevate_IMUK",
+								"partnerProgram": "partner"
+							};
+							fetch('https://your-api-endpoint.com', {
+								method: 'POST',
+								headers: {
+									'Authorization': 'Bearer ' + token,
+									'Content-Type': 'application/json'
+								},
+								body: JSON.stringify(payload)
+							})
+								.then(response => {
+									if (response.ok) {
+										alert("Data posted successfully!");
+									} else {
+										alert("Error posting data!");
+									}
+								})
+								.catch(error => alert("Error posting data: " + error));
+						});
+					} else {
+						alert("Authentication failed!");
+					}
+				})
+				.catch(error => alert("Authentication error: " + error));
 		});
 	</script>
 </body>
